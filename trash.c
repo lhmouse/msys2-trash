@@ -98,7 +98,7 @@ main(int argc, char** argv)
         default:
   do_report_invalid_options:
           fprintf(stderr, "Try `%s --help` for usage.\n", argv[0]);
-          quick_exit(1);
+          return 1;
         }
 
     if(opt_help) {
@@ -120,12 +120,12 @@ main(int argc, char** argv)
 // 34567890123456789012345678901234567890123456789012345678901234567890123456|
 //        1         2         3         4         5         6         7      |
         , argv[0]);
-      quick_exit(0);
+      return 0;
     }
 
     if(opt_version) {
       printf("Unversioned\n");
-      quick_exit(0);
+      return 0;
     }
 
     // The remaining arguments are paths to trash.
@@ -191,5 +191,5 @@ main(int argc, char** argv)
 
     // Exit.
     free(wpath);
-    quick_exit(has_errors ? 2 : 0);
+    return has_errors ? 2 : 0;
   }
