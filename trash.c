@@ -153,9 +153,12 @@ main(int argc, char** argv)
       }
 
       if(access(argv[k], W_OK) != 0) {
+        if(opt_force && (errno == ENOENT))
+          continue;
+
         // Report an error.
-        if(!(opt_force && (errno == ENOENT)))
-          fprintf(stderr, "Cannot trash '%s': %m\n", argv[k]);
+        has_errors |= 1;
+        fprintf(stderr, "Cannot trash '%s': %m\n", argv[k]);
         continue;
       }
 
