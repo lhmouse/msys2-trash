@@ -129,7 +129,7 @@ main(int argc, char** argv)
     }
 
     // The remaining arguments are paths to trash.
-    if(optind >= argc) {
+    if(!opt_force && (optind >= argc)) {
       fprintf(stderr, "%s: missing operand\n", argv[0]);
       goto do_report_invalid_options;
     }
