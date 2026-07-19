@@ -30,12 +30,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <string.h>
 #include <locale.h>
 #include <ctype.h>
 #include <unistd.h>
 #include <getopt.h>
 #include <errno.h>
+#include <sys/cygwin.h>
 #include <windows.h>
 #include <shellapi.h>
 
@@ -134,7 +134,6 @@ main(int argc, char** argv)
       goto do_report_invalid_options;
     }
 
-    size_t wpathlen = 0;
     wchar_t* wpath = NULL;
     int has_errors = 0;
 
@@ -159,21 +158,24 @@ main(int argc, char** argv)
         continue;
       }
 
-      // Convert the path to a wide string with two null terminators, which is
-      // required by `SHFileOperationw()`.
-      wpathlen = mbstowcs(NULL, argv[k], 0);
-      if(wpathlen == (size_t) -1) {
+      // Convert the MSYS2 path to an absolute Win32 wide string, with two null
+      // terminators as required by `SHFileOperationW()`.
+      ssize_t wpath_cb = cygwin_conv_path(CCP_POSIX_TO_WIN_W, argv[k], NULL, 0);
+      if(wpath_cb < 0) {
+        has_errors |= 1;
         fprintf(stderr, "Invalid path '%s': %m\n", argv[k]);
         continue;
       }
 
-      wpath = realloc(wpath, (wpathlen + 2) * sizeof(wchar_t));
+      wpath = realloc(wpath, (size_t) wpath_cb + sizeof(wchar_t));
       if(!wpath)
         abort();
-
-      mbstowcs(wpath, argv[k], wpathlen);
-      wpath[wpathlen] = 0;
-      wpath[wpathlen + 1] = 0;
+      *(wpath + wpath_cb / sizeof(wchar_t)) = 0;
+      if(cygwin_conv_path(CCP_POSIX_TO_WIN_W, argv[k], wpath, (size_t) wpath_cb) != 0) {
+        has_errors |= 1;
+        fprintf(stderr, "Invalid path '%s': %m\n", argv[k]);
+        continue;
+      }
 
       // Remove it using SHELL32.
       if(opt_verbose)
