@@ -138,6 +138,17 @@ main(int argc, char** argv)
     int has_errors = 0;
 
     for(int k = optind;  k < argc;  ++k) {
+      // Check for existence.
+      if(faccessat(AT_FDCWD, argv[k], F_OK, AT_SYMLINK_NOFOLLOW) != 0) {
+        if(opt_force && (errno == ENOENT))
+          continue;
+
+        // Report an error.
+        has_errors |= 1;
+        fprintf(stderr, "Cannot trash '%s': %m\n", argv[k]);
+        continue;
+      }
+
       if(opt_interactive) {
         // Ask the user for confirmation.
         char resp[256];
@@ -151,16 +162,6 @@ main(int argc, char** argv)
 
         if((resp[0] != 'y') && (resp[0] != 'Y'))
           continue;
-      }
-
-      if(faccessat(AT_FDCWD, argv[k], W_OK, AT_SYMLINK_NOFOLLOW) != 0) {
-        if(opt_force && (errno == ENOENT))
-          continue;
-
-        // Report an error.
-        has_errors |= 1;
-        fprintf(stderr, "Cannot trash '%s': %m\n", argv[k]);
-        continue;
       }
 
       // Convert the MSYS2 path to an absolute Win32 wide string, with two null
