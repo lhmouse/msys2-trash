@@ -176,7 +176,7 @@ main(int argc, char** argv)
       wpath = realloc(wpath, (size_t) wpath_cb + sizeof(wchar_t));
       if(!wpath)
         abort();
-      *(wpath + wpath_cb / sizeof(wchar_t)) = 0;
+      *(wchar_t*) ((char*) wpath + wpath_cb) = 0;
       if(cygwin_conv_path(CCP_POSIX_TO_WIN_W, argv[k], wpath, (size_t) wpath_cb) != 0) {
         has_errors |= 1;
         fprintf(stderr, "Invalid path '%s': %m\n", argv[k]);
