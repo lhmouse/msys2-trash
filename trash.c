@@ -141,11 +141,12 @@ main(int argc, char** argv)
       if(opt_interactive) {
         // Ask the user for confirmation.
         char resp[256];
-        do
+        do {
+          resp[0] = 0;
           printf("Trash '%s'? (y/N) ", argv[k]);
-        while(fgets(resp, sizeof(resp), stdin) && (resp[0] != '\n')
-              && (resp[0] != 'y') && (resp[0] != 'Y')
-              && (resp[0] != 'n') && (resp[0] != 'N'));
+        } while(fgets(resp, sizeof(resp), stdin) && (resp[0] != '\n')
+                && (resp[0] != 'y') && (resp[0] != 'Y')
+                && (resp[0] != 'n') && (resp[0] != 'N'));
 
         if((resp[0] != 'y') && (resp[0] != 'Y'))
           continue;
