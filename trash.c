@@ -65,7 +65,7 @@ main(int argc, char** argv)
       };
 
     int c;
-    while((c = getopt_long(argc, argv, "dfhirRv", s_long_options, NULL)) != -1)
+    while((c = getopt_long(argc, argv, "dfhirRvV", s_long_options, NULL)) != -1)
       switch(c)
         {
         case 'd':
