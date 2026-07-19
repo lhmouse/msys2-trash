@@ -95,9 +95,6 @@ main(int argc, char** argv)
           opt_version = true;
           continue;
 
-          printf("Unversioned\n");
-          quick_exit(0);
-
         default:
   do_report_invalid_options:
           fprintf(stderr, "Try `%s --help` for usage.\n", argv[0]);
