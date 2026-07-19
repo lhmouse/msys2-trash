@@ -189,7 +189,7 @@ main(int argc, char** argv)
       SHFILEOPSTRUCTW fileop = {0};
       fileop.wFunc = FO_DELETE;
       fileop.pFrom = wpath;
-      fileop.fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_NO_CONNECTED_ELEMENTS;
+      fileop.fFlags = FOF_ALLOWUNDO | FOF_NO_UI | FOF_NO_CONNECTED_ELEMENTS;
       int err = SHFileOperationW(&fileop);
       has_errors |= err | fileop.fAnyOperationsAborted;
       if(fileop.fAnyOperationsAborted)
