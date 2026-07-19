@@ -144,6 +144,7 @@ main(int argc, char** argv)
         do {
           resp[0] = 0;
           printf("Trash '%s'? (y/N) ", argv[k]);
+          fflush(stdout);
         } while(fgets(resp, sizeof(resp), stdin) && (resp[0] != '\n')
                 && (resp[0] != 'y') && (resp[0] != 'Y')
                 && (resp[0] != 'n') && (resp[0] != 'N'));
