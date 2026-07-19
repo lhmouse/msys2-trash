@@ -137,15 +137,15 @@ main(int argc, char** argv)
     wchar_t* wpath = NULL;
     int has_errors = 0;
 
-    for(int k = optind;  k < argc;  ++k) {
+    for(char** argp = argv + optind;  *argp;  ++argp) {
       // Check for existence.
-      if(faccessat(AT_FDCWD, argv[k], F_OK, AT_SYMLINK_NOFOLLOW) != 0) {
+      if(faccessat(AT_FDCWD, *argp, F_OK, AT_SYMLINK_NOFOLLOW) != 0) {
         if(opt_force && (errno == ENOENT))
           continue;
 
         // Report an error.
         has_errors |= 1;
-        fprintf(stderr, "Cannot trash '%s': %m\n", argv[k]);
+        fprintf(stderr, "Cannot trash '%s': %m\n", *argp);
         continue;
       }
 
@@ -154,7 +154,7 @@ main(int argc, char** argv)
         char resp[256];
         do {
           resp[0] = 0;
-          printf("Trash '%s'? (y/N) ", argv[k]);
+          printf("Trash '%s'? (y/N) ", *argp);
           fflush(stdout);
         } while(fgets(resp, sizeof(resp), stdin) && (resp[0] != '\n')
                 && (resp[0] != 'y') && (resp[0] != 'Y')
@@ -166,10 +166,10 @@ main(int argc, char** argv)
 
       // Convert the MSYS2 path to an absolute Win32 wide string, with two null
       // terminators as required by `SHFileOperationW()`.
-      ssize_t wpath_cb = cygwin_conv_path(CCP_POSIX_TO_WIN_W, argv[k], NULL, 0);
+      ssize_t wpath_cb = cygwin_conv_path(CCP_POSIX_TO_WIN_W, *argp, NULL, 0);
       if(wpath_cb < 0) {
         has_errors |= 1;
-        fprintf(stderr, "Invalid path '%s': %m\n", argv[k]);
+        fprintf(stderr, "Invalid path '%s': %m\n", *argp);
         continue;
       }
 
@@ -177,15 +177,14 @@ main(int argc, char** argv)
       if(!wpath)
         abort();
       *(wchar_t*) ((char*) wpath + wpath_cb) = 0;
-      if(cygwin_conv_path(CCP_POSIX_TO_WIN_W, argv[k], wpath, (size_t) wpath_cb) != 0) {
+      if(cygwin_conv_path(CCP_POSIX_TO_WIN_W, *argp, wpath, (size_t) wpath_cb) != 0) {
         has_errors |= 1;
-        fprintf(stderr, "Invalid path '%s': %m\n", argv[k]);
+        fprintf(stderr, "Invalid path '%s': %m\n", *argp);
         continue;
       }
 
-      // Remove it using SHELL32.
       if(opt_verbose)
-        printf("Trashing '%ls'...\n", wpath);
+        printf("Trashing '%s'...\n", *argp);
 
       SHFILEOPSTRUCTW fileop = {0};
       fileop.wFunc = FO_DELETE;
@@ -194,9 +193,9 @@ main(int argc, char** argv)
       int err = SHFileOperationW(&fileop);
       has_errors |= err | fileop.fAnyOperationsAborted;
       if(fileop.fAnyOperationsAborted)
-        fprintf(stderr, "Cannot trash '%s': Operation aborted\n", argv[k]);
+        fprintf(stderr, "Cannot trash '%s': Operation aborted\n", *argp);
       else if(err != 0)
-        fprintf(stderr, "Cannot trash '%s': Shell error 0x%X\n", argv[k], err);
+        fprintf(stderr, "Cannot trash '%s': Shell error 0x%X\n", *argp, err);
     }
 
     // Exit.
