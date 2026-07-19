@@ -31,10 +31,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.  */
 #include <stdlib.h>
 #include <stdbool.h>
 #include <locale.h>
-#include <ctype.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <getopt.h>
-#include <errno.h>
 #include <sys/cygwin.h>
 #include <windows.h>
 #include <shellapi.h>
@@ -153,7 +153,7 @@ main(int argc, char** argv)
           continue;
       }
 
-      if(access(argv[k], W_OK) != 0) {
+      if(faccessat(AT_FDCWD, argv[k], W_OK, AT_SYMLINK_NOFOLLOW) != 0) {
         if(opt_force && (errno == ENOENT))
           continue;
 
