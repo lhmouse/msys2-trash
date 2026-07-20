@@ -194,8 +194,15 @@ main(int argc, char** argv)
       has_errors |= err | fileop.fAnyOperationsAborted;
       if(fileop.fAnyOperationsAborted)
         fprintf(stderr, "Cannot trash '%s': Operation aborted\n", *argp);
-      else if(err != 0)
-        fprintf(stderr, "Cannot trash '%s': Shell error 0x%X\n", *argp, err);
+      else if(err != 0) {
+        // XXX: Verify that the error codes are correct.
+        if(err == 0x78)
+          fprintf(stderr, "Cannot trash '%s': Access denied\n", *argp);
+        else if(err == 0x7C)
+          fprintf(stderr, "Cannot trash '%s': File in use\n", *argp);
+        else
+          fprintf(stderr, "Cannot trash '%s': Shell error 0x%X\n", *argp, err);
+      }
     }
 
     // Exit.
