@@ -137,7 +137,7 @@ main(int argc, char** argv)
     wchar_t* wpath = NULL;
     int has_errors = 0;
 
-    for(char** argp = argv + optind;  *argp;  ++argp) {
+    for(char** argp = argv + optind;  *argp;  argp ++) {
       // Check for existence.
       if(faccessat(AT_FDCWD, *argp, F_OK, AT_SYMLINK_NOFOLLOW) != 0) {
         if(opt_force && (errno == ENOENT))
@@ -186,7 +186,7 @@ main(int argc, char** argv)
       if(opt_verbose)
         printf("Trashing '%s'...\n", *argp);
 
-      SHFILEOPSTRUCTW fileop = {0};
+      SHFILEOPSTRUCTW fileop = { 0 };
       fileop.wFunc = FO_DELETE;
       fileop.pFrom = wpath;
       fileop.fFlags = FOF_ALLOWUNDO | FOF_NO_UI | FOF_NO_CONNECTED_ELEMENTS;
