@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <locale.h>
+#include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -151,16 +152,18 @@ main(int argc, char** argv)
 
       if(opt_interactive) {
         // Ask the user for confirmation.
-        char resp[256];
+        int resp;
         do {
-          resp[0] = 0;
           printf("Trash '%s'? (y/N) ", *argp);
           fflush(stdout);
-        } while(fgets(resp, sizeof(resp), stdin) && (resp[0] != '\n')
-                && (resp[0] != 'y') && (resp[0] != 'Y')
-                && (resp[0] != 'n') && (resp[0] != 'N'));
+          int ch = getchar();
+          resp = tolower(ch);
+          while((ch != EOF) && (ch != '\n'))
+            ch = getchar();
+        } while((resp != EOF) && (resp != '\n') && (resp != 'y') && (resp != 'n'));
 
-        if((resp[0] != 'y') && (resp[0] != 'Y'))
+        // If not confirmed, skip; default is no.
+        if(resp != 'y')
           continue;
       }
 
